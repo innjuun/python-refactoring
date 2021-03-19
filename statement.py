@@ -57,9 +57,10 @@ def statement(invoice, plays):
 
     for perf in invoices['performances']:
 
-        volume_credits += volume_credits_for(perf)
         result += f"{play_for(perf)['name']}: {amount_for(perf)//100} ({perf['audience']}석)\n"
         total_amount += amount_for(perf)
+    for perf in invoices['performances']:
+        volume_credits += volume_credits_for(perf)
 
     result += f"총액: {total_amount//100}\n"
     result += f'적립 포인트: {volume_credits}점\n'
