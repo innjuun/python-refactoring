@@ -29,6 +29,13 @@ def statement(invoice, plays):
     def play_for(a_performance):
         return plays[a_performance['play_id']]
 
+    def volume_credits_for(a_performance):
+        result = 0
+        result += max(a_performance['audience'] - 30, 0)
+        if "comedy" == play_for(a_performance)['type']:
+            result += a_performance['audience'] // 5
+        return result
+
     def amount_for(a_performance):
         result = 0
         if play_for(a_performance)['type'] == "tragedy":
@@ -50,10 +57,7 @@ def statement(invoice, plays):
 
     for perf in invoices['performances']:
 
-        volume_credits += max(perf['audience'] - 30, 0)
-        if "comedy" == play_for(perf)['type']:
-            volume_credits += perf['audience'] // 5
-
+        volume_credits += volume_credits_for(perf)
         result += f"{play_for(perf)['name']}: {amount_for(perf)//100} ({perf['audience']}석)\n"
         total_amount += amount_for(perf)
 
