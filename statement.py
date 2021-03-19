@@ -25,14 +25,8 @@ invoices = [
 ]
 
 def statement(invoice, plays):
-    total_amount = 0
-    volume_credits = 0
-    result = f"청구 내역 (고객명: {invoices['customer']})"
-
-    for perf in invoice['performances']:
-        play = plays[perf['play_id']]
+    def amount_for(perf, play):
         this_amount = 0
-
         if play['type'] == "tragedy":
             this_amount = 40000
             if perf['audience'] > 20:
@@ -44,6 +38,15 @@ def statement(invoice, plays):
             this_amount += 300 * perf['audience']
         else:
             raise Exception(f"Unknown type: {play['type']}")
+        return this_amount
+
+    total_amount = 0
+    volume_credits = 0
+    result = f"청구 내역 (고객명: {invoices['customer']})"
+
+    for perf in invoice['performances']:
+        play = plays[perf['play_id']]
+        this_amount = amount_for(perf, play)
 
         volume_credits += max(perf['audience'] - 30, 0)
         if "comedy" == play['type']:
