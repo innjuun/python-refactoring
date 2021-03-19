@@ -29,19 +29,19 @@ def statement(invoice, plays):
     def play_for(a_performance):
         return plays[a_performance['play_id']]
 
-    def amount_for(a_performance, play):
+    def amount_for(a_performance):
         result = 0
-        if play['type'] == "tragedy":
+        if play_for(a_performance)['type'] == "tragedy":
             result = 40000
             if a_performance['audience'] > 20:
                 result += 1000 * (a_performance['audience'] - 30)
-        elif play['type'] == "comedy":
+        elif play_for(a_performance)['type'] == "comedy":
             result = 30000
             if a_performance['audience'] > 20:
                 result += 10000 + 500 * (a_performance['audience'] - 20)
             result += 300 * a_performance['audience']
         else:
-            raise Exception(f"Unknown type: {play['type']}")
+            raise Exception(f"Unknown type: {play_for(a_performance)['type']}")
         return result
 
     total_amount = 0
@@ -49,7 +49,7 @@ def statement(invoice, plays):
     result = f"청구 내역 (고객명: {invoices['customer']})"
 
     for perf in invoice['performances']:
-        this_amount = amount_for(perf, play_for(perf))
+        this_amount = amount_for(perf)
 
         volume_credits += max(perf['audience'] - 30, 0)
         if "comedy" == play_for(perf)['type']:
