@@ -51,17 +51,23 @@ def statement(invoice, plays):
             raise Exception(f"Unknown type: {play_for(a_performance)['type']}")
         return result
 
-    total_amount = 0
-    volume_credits = 0
+    def total_amount():
+        result = 0
+        for perf in invoices['performances']:
+            result += amount_for(perf)
+        return result
+
+    def total_volume_credits():
+        result = 0
+        for perf in invoices['performances']:
+            result += volume_credits_for(perf)
+        return result
+
     result = f"청구 내역 (고객명: {invoices['customer']})"
 
     for perf in invoices['performances']:
-
         result += f"{play_for(perf)['name']}: {amount_for(perf)//100} ({perf['audience']}석)\n"
-        total_amount += amount_for(perf)
-    for perf in invoices['performances']:
-        volume_credits += volume_credits_for(perf)
 
-    result += f"총액: {total_amount//100}\n"
-    result += f'적립 포인트: {volume_credits}점\n'
+    result += f"총액: {total_amount()//100}\n"
+    result += f'적립 포인트: {total_volume_credits()}점\n'
     return result
