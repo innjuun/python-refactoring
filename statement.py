@@ -6,6 +6,11 @@ def html_statement(invoice, plays):
     return render_html(create_statement_data(invoice, plays))
 
 
+class PerformanceCalculator:
+    def __init__(self, a_performance, a_play):
+        self.performance = a_performance
+        self.play = a_play
+
 def create_statement_data(invoice, plays):
 
     def play_for(a_performance):
@@ -34,20 +39,16 @@ def create_statement_data(invoice, plays):
         return result
 
     def total_amount(data):
-        result = 0
-        for perf in data['performances']:
-            result += perf['amount']
-        return result
+        return sum((performance['amount'] for performance in data['performances']))
 
     def total_volume_credits(data):
-        result = 0
-        for perf in data['performances']:
-            result += perf['volume_credits']
-        return result
+        return sum((performance['volume_credits'] for performance in data['performances']))
+
 
     def enrich_performance(a_performance):
+        calculator = PerformanceCalculator(a_performance, play_for(a_performance))
         result = dict(a_performance)
-        result['play'] = play_for(result)
+        result['play'] = calculator.play
         result['amount'] = amount_for(result)
         result['volume_credits'] = volume_credits_for(result)
         return result
