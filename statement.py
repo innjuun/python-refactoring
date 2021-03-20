@@ -1,4 +1,10 @@
 def statement(invoice, plays):
+    statement_data = {}
+    statement_data['customer'] = invoice['customer']
+    return render_plain_text(statement_data, invoice, plays)
+
+def render_plain_text(data, invoice, plays):
+
     def play_for(a_performance):
         return plays[a_performance['play_id']]
 
