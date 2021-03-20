@@ -31,7 +31,9 @@ class StatementTest(unittest.TestCase):
     def test_statement(self):
         result = statement(self.invoices[0], self.plays)
 
-    def test_play_for(self):
-        pass
+        self.assertEqual(
+            result, '청구 내역 (고객명: BigCo)Hamlet: 650 (55석)\nAs you like it: 580 (35석)\nOthello: 500 (40석)\n총액: 1730\n적립 포인트: 47점\n'
+        )
+
 if __name__ == '__main__':
     unittest.main()
