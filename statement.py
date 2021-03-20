@@ -1,4 +1,12 @@
 def statement(invoice, plays):
+    return render_plain_text(create_statement_data(invoice, plays))
+
+
+def html_statement(invoice, plays):
+    return render_html(create_statement_data(invoice, plays))
+
+
+def create_statement_data(invoice, plays):
 
     def play_for(a_performance):
         return plays[a_performance['play_id']]
@@ -44,16 +52,15 @@ def statement(invoice, plays):
         result['volume_credits'] = volume_credits_for(result)
         return result
 
-    statement_data = {}
-    statement_data['customer'] = invoice['customer']
-    statement_data['performances'] = [enrich_performance(performance) for performance in invoice['performances']]
-    statement_data['total_amount'] = total_amount(statement_data)
-    statement_data['total_volume_credits'] = total_volume_credits(statement_data)
-    return render_plain_text(statement_data, plays)
+    result = {}
+    result['customer'] = invoice['customer']
+    result['performances'] = [enrich_performance(performance) for performance in invoice['performances']]
+    result['total_amount'] = total_amount(result)
+    result['total_volume_credits'] = total_volume_credits(result)
 
+    return result
 
-def render_plain_text(data, plays):
-
+def render_plain_text(data):
     result = f"청구 내역 (고객명: {data['customer']})"
 
     for perf in data['performances']:
@@ -61,4 +68,16 @@ def render_plain_text(data, plays):
 
     result += f"총액: {data['total_amount']//100}\n"
     result += f"적립 포인트: {data['total_volume_credits']}점\n"
+    return result
+
+def render_html(data):
+    result = f"<h1>청구 내역 (고객명: {data['customer']}</h1>"
+    result += "<table>\n"
+    result += "<tr><th>연극</th><th>좌석 수</th><th>금액</th></tr>"
+    for perf in data['performances']:
+        result += f"<tr><td>{perf['play']['name']}</td><td>({perf['audience']}석)</td>"
+        result += f"<td>{perf['amount']}</td></tr>"
+    result += "</trble>\n"
+    result += f"<p>총액: <em>{data['total_amount']}</em></p>\n"
+    result += f"<p>적립 포인트: <em>{data['total_volume_credits']}</em>점</p>\n"
     return result
