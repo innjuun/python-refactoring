@@ -1,30 +1,3 @@
-plays ={
-    "hamlet": {"name": "Hamlet", "type": "tragedy"},
-    "as-like": {"name": "As you like it", "type": "tragedy"},
-    "othello": {"name": "Othello", "type": "tragedy"}
-}
-
-invoices = [
-    {
-        "customer": "BigCo",
-        "performances": [
-            {
-                "play_id": "hamlet",
-                "audience": 55,
-            },
-            {
-                "play_id": "as-like",
-                "audience": 35
-            },
-            {
-                "play_id": "othello",
-                "audience": 40
-            }
-        ]
-    }
-]
-
-
 def statement(invoice, plays):
     def play_for(a_performance):
         return plays[a_performance['play_id']]
@@ -53,19 +26,19 @@ def statement(invoice, plays):
 
     def total_amount():
         result = 0
-        for perf in invoices['performances']:
+        for perf in invoice['performances']:
             result += amount_for(perf)
         return result
 
     def total_volume_credits():
         result = 0
-        for perf in invoices['performances']:
+        for perf in invoice['performances']:
             result += volume_credits_for(perf)
         return result
 
-    result = f"청구 내역 (고객명: {invoices['customer']})"
+    result = f"청구 내역 (고객명: {invoice['customer']})"
 
-    for perf in invoices['performances']:
+    for perf in invoice['performances']:
         result += f"{play_for(perf)['name']}: {amount_for(perf)//100} ({perf['audience']}석)\n"
 
     result += f"총액: {total_amount()//100}\n"
