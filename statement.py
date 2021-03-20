@@ -12,31 +12,44 @@ class PerformanceCalculator:
         self.play = a_play
 
     def amount(self):
-        result = 0
-        if self.play['type'] == "tragedy":
-            result = 40000
-            if self.performance['audience'] > 20:
-                result += 1000 * (self.performance['audience'] - 30)
-        elif self.play['type'] == "comedy":
-            result = 30000
-            if self.performance['audience'] > 20:
-                result += 10000 + 500 * (self.performance['audience'] - 20)
-            result += 300 * self.performance['audience']
-        else:
-            raise Exception(f"Unknown type: {self.play['type']}")
+        raise NotImplementedError("서브 클래스에서 처리합니다")
+
+    def volume_credits(self):
+        return max(self.performance['audience'] - 30, 0)
+
+class TragedyCalculator(PerformanceCalculator):
+    def amount(self):
+        result = 40000
+        if self.performance['audience'] > 20:
+            result += 1000 * (self.performance['audience'] - 30)
         return result
+
+class ComedyCalculator(PerformanceCalculator):
+    def amount(self):
+        result = 30000
+        if self.performance['audience'] > 20:
+            result += 10000 + 500 * (self.performance['audience'] - 20)
+        result += 300 * self.performance['audience']
+        return result
+
+    def volume_credits(self):
+        return super().volume_credits() + self.performance['audience'] // 5
+
+
+def create_performance_calculator(a_performance, a_play):
+    if a_play['type'] == "tragedy":
+        return TragedyCalculator(a_performance, a_play)
+    elif a_play['type'] == "comedy":
+        return ComedyCalculator(a_performance, a_play)
+    else:
+        raise Exception(f"알 수 없는 장르: {a_play['type']}")
+
 
 def create_statement_data(invoice, plays):
 
     def play_for(a_performance):
         return plays[a_performance['play_id']]
 
-    def volume_credits_for(a_performance):
-        result = 0
-        result += max(a_performance['audience'] - 30, 0)
-        if "comedy" == a_performance['play']['type']:
-            result += a_performance['audience'] // 5
-        return result
 
     def total_amount(data):
         return sum((performance['amount'] for performance in data['performances']))
@@ -46,11 +59,11 @@ def create_statement_data(invoice, plays):
 
 
     def enrich_performance(a_performance):
-        calculator = PerformanceCalculator(a_performance, play_for(a_performance))
+        calculator = create_performance_calculator(a_performance, play_for(a_performance))
         result = dict(a_performance)
         result['play'] = calculator.play
         result['amount'] = calculator.amount()
-        result['volume_credits'] = volume_credits_for(result)
+        result['volume_credits'] = calculator.volume_credits()
         return result
 
     result = {}
